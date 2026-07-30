@@ -509,7 +509,7 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
-        <h1>✈ Pilot Checklist</h1>
+        <h1>✈ Preflight Pro</h1>
         <p>Preset and custom aircraft checklists</p>
       </div>
       <button class="btn btn-secondary" id="darkModeButton">Dark Mode</button>
@@ -895,7 +895,7 @@
 
       if (!checklist) return;
 
-      checklistTitle.textContent = checklist.name;
+      checklistTitle.textContent = "Aircraft Checklist";
       aircraftImage.src = checklist.image || presetChecklists.pa28.image;
       checklistContainer.innerHTML = "";
       reviewBox.className = "review";
