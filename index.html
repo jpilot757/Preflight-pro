@@ -121,7 +121,7 @@
 
     .toolbar {
       display: grid;
-      grid-template-columns: 1.6fr 1fr 1fr;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
       gap: 12px;
       margin-top: 18px;
     }
@@ -502,19 +502,58 @@
       .brand h1 { font-size: 1.2rem; }
     }
 
+    .editor-panel {
+      display: none;
+    }
 
+    .editor-panel.show {
+      display: block;
+    }
 
-    /* Checklist editor */
-    .hidden { display: none !important; }
-    .checklist-editor { margin-top:18px; padding:18px; background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); }
-    .editor-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
-    .editor-header h2 { margin:0; }
-    .editor-section { border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:14px; background:#f8fafc; }
-    .editor-item-row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
-    .editor-item-row input { flex:1; }
-    .editor-section-name { font-weight:800; }
-    .editor-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
-    @media (max-width:620px) { .editor-item-row { align-items:stretch; flex-direction:column; } }
+    .editor-section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 14px;
+      background: #f8fafc;
+    }
+
+    .editor-section-header,
+    .editor-item-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .editor-item-row {
+      margin-top: 10px;
+    }
+
+    .editor-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .editor-note {
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 8px 0 0;
+    }
+
+    .btn-warning {
+      background: #fff4e5;
+      color: #9a3412;
+    }
+
+    @media (max-width: 720px) {
+      .editor-section-header,
+      .editor-item-row {
+        grid-template-columns: 1fr;
+      }
+    }
 
   </style>
 </head>
@@ -557,6 +596,9 @@
           <button class="btn btn-danger" id="deleteChecklistButton">
             Delete Custom
           </button>
+          <button class="btn btn-secondary" id="editChecklistButton">
+            Edit Checklist
+          </button>
         </div>
 
         <div class="progress-wrap">
@@ -579,24 +621,9 @@
           <button class="btn btn-secondary" id="expandButton">
             Expand All
           </button>
-          <button type="button" class="btn btn-secondary" id="editChecklistButton">
-            Edit Checklist
-          </button>
         </div>
 
         <div id="reviewBox" class="review"></div>
-
-        <div id="checklistEditor" class="checklist-editor hidden">
-          <div class="editor-header">
-            <h2>Edit Checklist</h2>
-            <button type="button" class="btn btn-secondary" id="closeEditorButton">Close</button>
-          </div>
-          <div id="editorSections"></div>
-          <div class="editor-actions">
-            <button type="button" class="btn btn-primary" id="addSectionButton">+ Add Section</button>
-            <button type="button" class="btn btn-success" id="saveChecklistButton">Save Changes</button>
-          </div>
-        </div>
 
         <div class="warning">
           <strong>Important:</strong> This is a planning and reference tool.
@@ -651,6 +678,32 @@
       </div>
     </section>
 
+    </div>
+
+    <div class="app-page" id="pageEdit">
+      <section class="panel editor-panel show" id="checklistEditor">
+        <div class="panel-body">
+          <h2>Edit Checklist</h2>
+          <p class="editor-note">
+            Rename the checklist, add or delete sections, and add, rename, or delete checklist items.
+            Preset checklist edits are saved on this device and can be restored to the original version.
+          </p>
+
+          <div style="margin-top: 16px;">
+            <label for="editChecklistName"><strong>Checklist name</strong></label>
+            <input type="text" id="editChecklistName" style="margin-top: 8px;" />
+          </div>
+
+          <div id="editorSections"></div>
+
+          <div class="button-row">
+            <button class="btn btn-primary" id="addEditorSectionButton">+ Add Section</button>
+            <button class="btn btn-success" id="saveChecklistEditsButton">Save Changes</button>
+            <button class="btn btn-secondary" id="cancelChecklistEditsButton">Cancel</button>
+            <button class="btn btn-warning" id="restorePresetButton">Restore Original Preset</button>
+          </div>
+        </div>
+      </section>
     </div>
 
     <div class="app-page" id="pageChecklistBody">
@@ -838,10 +891,242 @@
               "Seat belts — Fastened",
               "Takeoff briefing — Complete"
             ]
+          },
+          {
+  name: "Cruise",
+  items: [
+    "Power — Set",
+    "Mixture — Lean as required",
+    "Engine instruments — Check",
+    "Fuel quantity — Monitor",
+    "Fuel selector — Proper tank",
+    "Trim — Adjust",
+    "Heading and navigation — Check"
+    ]
+  },
+  {       
+      name: "Before Landing",
+  items: [
+    "Seats and seat belts — Secure",
+    "Fuel selector — Proper tank",
+    "Mixture — Rich",
+    "Carburetor heat — On",
+    "Engine instruments — Check",
+    "Landing light — On",
+    "Flaps — As required",
+    "Approach speed — Set"
+    ]
+  },
+  {
+      name: "After Landing",
+  items: [
+    "Flaps — Retract",
+    "Carburetor heat — Cold",
+    "Landing light — Off",
+    "Transponder — Standby",
+    "Trim — Neutral"
+    ]
+  },
+  {
+     name: "Shutdown",
+  items: [
+    "Parking brake — Set",
+    "Radios — Off",
+    "Electrical equipment — Off",
+    "Mixture — Idle cut-off",
+    "Magnetos — Off",
+    "Master switch — Off",
+    "Fuel selector — Off",
+    "Control lock — Install",
+    "Aircraft — Secure"
+           ]
           }
         ]
       },
-
+"c172": {
+  name: "Cessna 172 Checklist",
+  image: "https://i.postimg.cc/rFcZMWTG/Cessna-172S-Skyhawk-SP-Private-JP6817606.jpg",
+  sections: [
+    {
+      name: "Cabin Inspection",
+      items: [
+        "Airworthiness certificate — On board",
+        "Registration — On board",
+        "Operating handbook / POH — On board",
+        "Weight and balance — On board",
+        "Control wheel lock — Remove",
+        "Ignition switch — Off",
+        "Avionics master — Off",
+        "Master switch — On",
+        "Fuel quantity indicators — Check",
+        "Low fuel annunciators — Check",
+        "Avionics cooling fan — Check",
+        "Flaps — Extend",
+        "Exterior lights — Check",
+        "Pitot heat — Check",
+        "Master switch — Off",
+        "Fuel selector — Both",
+        "Fuel shutoff valve — On"
+      ]
+    },
+    {
+      name: "Exterior Inspection — Left Side",
+      items: [
+        "Fuel quantity — Visually check",
+        "Fuel filler cap — Secure",
+        "Fuel sample — Check",
+        "Main wheel tire — Check",
+        "Brake — Check",
+        "Wing tie-down — Remove",
+        "Pitot tube — Cover removed and opening clear",
+        "Fuel tank vent opening — Clear",
+        "Stall warning opening — Clear",
+        "Landing and taxi lights — Check",
+        "Aileron — Check condition and movement",
+        "Flap — Check condition and security"
+      ]
+    },
+    {
+      name: "Exterior Inspection — Empennage",
+      items: [
+        "Fuselage — Check condition",
+        "Antennas — Check",
+        "Tail tie-down — Remove",
+        "Elevator — Check condition and movement",
+        "Rudder — Check condition and movement",
+        "Trim tab — Check"
+      ]
+    },
+    {
+      name: "Exterior Inspection — Right Side",
+      items: [
+        "Flap — Check condition and security",
+        "Aileron — Check condition and movement",
+        "Wing tie-down — Remove",
+        "Main wheel tire — Check",
+        "Brake — Check",
+        "Fuel quantity — Visually check",
+        "Fuel filler cap — Secure",
+        "Fuel sample — Check"
+      ]
+    },
+    {
+      name: "Exterior Inspection — Nose",
+      items: [
+        "Engine oil level — Check",
+        "Oil filler cap — Secure",
+        "Fuel strainer — Sample",
+        "Propeller and spinner — Check",
+        "Air inlets — Clear",
+        "Alternator belt — Check",
+        "Landing light — Check",
+        "Nose wheel tire and strut — Check",
+        "Static source opening — Clear"
+      ]
+    },
+    {
+      name: "Before Starting Engine",
+      items: [
+        "Preflight inspection — Complete",
+        "Passenger briefing — Complete",
+        "Seats and seat belts — Adjust and secure",
+        "Brakes — Test and set",
+        "Fuel selector — Both",
+        "Fuel shutoff valve — On",
+        "Circuit breakers — Check",
+        "Electrical equipment — Off",
+        "Avionics master — Off"
+      ]
+    },
+    {
+      name: "Engine Start",
+      items: [
+        "Mixture — Rich",
+        "Throttle — Open slightly",
+        "Propeller area — Clear",
+        "Beacon — On",
+        "Master switch — On",
+        "Ignition switch — Start",
+        "Throttle — Adjust",
+        "Oil pressure — Check",
+        "Avionics master — On",
+        "Flaps — Retract"
+      ]
+    },
+    {
+      name: "Before Takeoff",
+      items: [
+        "Parking brake — Set",
+        "Seats and seat belts — Secure",
+        "Cabin doors and windows — Closed and locked",
+        "Flight controls — Free and correct",
+        "Flight instruments — Check and set",
+        "Fuel quantity — Check",
+        "Fuel selector — Both",
+        "Mixture — Rich or set for altitude",
+        "Elevator trim — Set for takeoff",
+        "Throttle — Run-up power",
+        "Magnetos — Check",
+        "Engine instruments — Check",
+        "Ammeter or load meter — Check",
+        "Vacuum gauge — Check if equipped",
+        "Throttle — Idle check",
+        "Throttle — Set",
+        "Radios and avionics — Set",
+        "Transponder — Set",
+        "Flaps — Set",
+        "Takeoff briefing — Complete"
+      ]
+    },
+    {
+      name: "Cruise",
+      items: [
+        "Power — Set",
+        "Elevator trim — Adjust",
+        "Mixture — Lean as required",
+        "Engine instruments — Monitor",
+        "Fuel quantity — Monitor",
+        "Heading indicator — Check"
+      ]
+    },
+    {
+      name: "Before Landing",
+      items: [
+        "Seats and seat belts — Secure",
+        "Fuel selector — Both",
+        "Mixture — Rich or set for altitude",
+        "Landing light — On",
+        "Flaps — Set as required",
+        "Approach speed — Establish"
+      ]
+    },
+    {
+      name: "After Landing",
+      items: [
+        "Flaps — Retract",
+        "Carburetor heat — Cold if equipped",
+        "Landing light — Off",
+        "Transponder — Standby",
+        "Elevator trim — Reset"
+      ]
+    },
+    {
+      name: "Shutdown",
+      items: [
+        "Parking brake — Set",
+        "Avionics master — Off",
+        "Electrical equipment — Off",
+        "Mixture — Idle cut-off",
+        "Ignition switch — Off",
+        "Master switch — Off",
+        "Control wheel lock — Install",
+        "Fuel selector — As required",
+        "Aircraft — Secure"
+      ]
+    }
+  ]
+},
+      
       "blank": {
         name: "Blank Practice Checklist",
         image: "https://i.postimg.cc/W4NsCR9X/IMG-9104.jpg",
@@ -870,8 +1155,12 @@
     const customSectionName = document.getElementById("customSectionName");
     const customItemText = document.getElementById("customItemText");
     const customItemPreview = document.getElementById("customItemPreview");
+    const editChecklistName = document.getElementById("editChecklistName");
+    const editorSections = document.getElementById("editorSections");
+    const restorePresetButton = document.getElementById("restorePresetButton");
 
     let customDraftItems = [];
+    let checklistEditDraft = null;
     let currentChecklistId = storage.getItem("currentChecklistId") || "pa28";
 
     function getCustomChecklists() {
@@ -882,8 +1171,24 @@
       storage.setItem("customChecklists", JSON.stringify(checklists));
     }
 
+    function getEditedPresetChecklists() {
+      return JSON.parse(storage.getItem("editedPresetChecklists") || "{}");
+    }
+
+    function saveEditedPresetChecklists(checklists) {
+      storage.setItem("editedPresetChecklists", JSON.stringify(checklists));
+    }
+
+    function cloneChecklist(checklist) {
+      return JSON.parse(JSON.stringify(checklist));
+    }
+
     function getAllChecklists() {
-      return { ...presetChecklists, ...getCustomChecklists() };
+      return {
+        ...presetChecklists,
+        ...getEditedPresetChecklists(),
+        ...getCustomChecklists()
+      };
     }
 
     function populateSelector() {
@@ -923,7 +1228,7 @@
 
       if (!checklist) return;
 
-      checklistTitle.textContent = "Aircraft Checklist";
+      checklistTitle.textContent = checklist.name;
       aircraftImage.src = checklist.image || presetChecklists.pa28.image;
       checklistContainer.innerHTML = "";
       reviewBox.className = "review";
@@ -1196,6 +1501,184 @@
       closeCustomBuilder();
     }
 
+
+    function openChecklistEditor() {
+      const all = getAllChecklists();
+      const checklist = all[currentChecklistId];
+      if (!checklist) return;
+
+      checklistEditDraft = cloneChecklist(checklist);
+      editChecklistName.value = checklistEditDraft.name;
+      renderChecklistEditor();
+      showAppPage("pageEdit");
+      setTimeout(() => editChecklistName.focus(), 200);
+    }
+
+    function renderChecklistEditor() {
+      editorSections.innerHTML = "";
+      if (!checklistEditDraft) return;
+
+      checklistEditDraft.sections.forEach((section, sectionIndex) => {
+        const sectionCard = document.createElement("div");
+        sectionCard.className = "editor-section";
+
+        const headerRow = document.createElement("div");
+        headerRow.className = "editor-section-header";
+
+        const sectionInput = document.createElement("input");
+        sectionInput.type = "text";
+        sectionInput.value = section.name;
+        sectionInput.placeholder = "Section name";
+        sectionInput.addEventListener("input", () => {
+          checklistEditDraft.sections[sectionIndex].name = sectionInput.value;
+        });
+
+        const deleteSectionButton = document.createElement("button");
+        deleteSectionButton.type = "button";
+        deleteSectionButton.className = "small-btn";
+        deleteSectionButton.textContent = "Delete Section";
+        deleteSectionButton.addEventListener("click", () => {
+          const confirmed = confirm('Delete the section "' + (section.name || "Untitled Section") + '"?');
+          if (!confirmed) return;
+          checklistEditDraft.sections.splice(sectionIndex, 1);
+          renderChecklistEditor();
+        });
+
+        headerRow.appendChild(sectionInput);
+        headerRow.appendChild(deleteSectionButton);
+        sectionCard.appendChild(headerRow);
+
+        section.items.forEach((item, itemIndex) => {
+          const itemRow = document.createElement("div");
+          itemRow.className = "editor-item-row";
+
+          const itemInput = document.createElement("input");
+          itemInput.type = "text";
+          itemInput.value = item;
+          itemInput.placeholder = "Checklist item";
+          itemInput.addEventListener("input", () => {
+            checklistEditDraft.sections[sectionIndex].items[itemIndex] = itemInput.value;
+          });
+
+          const deleteItemButton = document.createElement("button");
+          deleteItemButton.type = "button";
+          deleteItemButton.className = "small-btn";
+          deleteItemButton.textContent = "Delete";
+          deleteItemButton.addEventListener("click", () => {
+            checklistEditDraft.sections[sectionIndex].items.splice(itemIndex, 1);
+            renderChecklistEditor();
+          });
+
+          itemRow.appendChild(itemInput);
+          itemRow.appendChild(deleteItemButton);
+          sectionCard.appendChild(itemRow);
+        });
+
+        const actions = document.createElement("div");
+        actions.className = "editor-actions";
+
+        const addItemButton = document.createElement("button");
+        addItemButton.type = "button";
+        addItemButton.className = "btn btn-secondary";
+        addItemButton.textContent = "+ Add Item";
+        addItemButton.addEventListener("click", () => {
+          checklistEditDraft.sections[sectionIndex].items.push("New checklist item");
+          renderChecklistEditor();
+          const inputs = editorSections.querySelectorAll(".editor-item-row input");
+          if (inputs.length) inputs[inputs.length - 1].focus();
+        });
+
+        actions.appendChild(addItemButton);
+        sectionCard.appendChild(actions);
+        editorSections.appendChild(sectionCard);
+      });
+
+      restorePresetButton.style.display =
+        currentChecklistId.startsWith("custom_") ? "none" : "inline-block";
+    }
+
+    function addEditorSection() {
+      if (!checklistEditDraft) return;
+      checklistEditDraft.sections.push({
+        name: "New Section",
+        items: ["New checklist item"]
+      });
+      renderChecklistEditor();
+      const sectionInputs = editorSections.querySelectorAll(".editor-section-header input");
+      if (sectionInputs.length) sectionInputs[sectionInputs.length - 1].focus();
+    }
+
+    function saveChecklistEdits() {
+      if (!checklistEditDraft) return;
+
+      const name = editChecklistName.value.trim();
+      if (!name) {
+        alert("Enter a checklist name.");
+        editChecklistName.focus();
+        return;
+      }
+
+      const cleanedSections = checklistEditDraft.sections
+        .map(section => ({
+          name: String(section.name || "").trim(),
+          items: section.items.map(item => String(item || "").trim()).filter(Boolean)
+        }))
+        .filter(section => section.name && section.items.length > 0);
+
+      if (cleanedSections.length === 0) {
+        alert("Keep at least one section with at least one checklist item.");
+        return;
+      }
+
+      checklistEditDraft.name = name;
+      checklistEditDraft.sections = cleanedSections;
+
+      if (currentChecklistId.startsWith("custom_")) {
+        const customChecklists = getCustomChecklists();
+        customChecklists[currentChecklistId] = cloneChecklist(checklistEditDraft);
+        saveCustomChecklists(customChecklists);
+      } else {
+        const editedPresets = getEditedPresetChecklists();
+        editedPresets[currentChecklistId] = cloneChecklist(checklistEditDraft);
+        saveEditedPresetChecklists(editedPresets);
+      }
+
+      storage.removeItem("checkState_" + currentChecklistId);
+      checklistEditDraft = null;
+      populateSelector();
+      renderChecklist();
+      showAppPage("pageChecklist");
+      alert("Checklist changes saved.");
+    }
+
+    function cancelChecklistEdits() {
+      checklistEditDraft = null;
+      showAppPage("pageChecklist");
+    }
+
+    function restoreCurrentPreset() {
+      if (currentChecklistId.startsWith("custom_")) return;
+
+      const original = presetChecklists[currentChecklistId];
+      if (!original) return;
+
+      const confirmed = confirm(
+        'Restore "' + original.name + '" to its original preset version? Your edits will be removed.'
+      );
+      if (!confirmed) return;
+
+      const editedPresets = getEditedPresetChecklists();
+      delete editedPresets[currentChecklistId];
+      saveEditedPresetChecklists(editedPresets);
+      storage.removeItem("checkState_" + currentChecklistId);
+
+      checklistEditDraft = cloneChecklist(original);
+      editChecklistName.value = checklistEditDraft.name;
+      renderChecklistEditor();
+      populateSelector();
+      alert("Original preset restored.");
+    }
+
     function deleteCurrentChecklist() {
       if (!currentChecklistId.startsWith("custom_")) {
         alert("Preset checklists cannot be deleted.");
@@ -1244,6 +1727,7 @@
         anyCollapsed ? "Collapse All" : "Expand All";
     }
 
+
     checklistSelector.addEventListener("change", event => {
       currentChecklistId = event.target.value;
       storage.setItem("currentChecklistId", currentChecklistId);
@@ -1282,6 +1766,28 @@
       .getElementById("deleteChecklistButton")
       .addEventListener("click", deleteCurrentChecklist);
 
+    document
+      .getElementById("editChecklistButton")
+      .addEventListener("click", openChecklistEditor);
+
+    document
+      .getElementById("addEditorSectionButton")
+      .addEventListener("click", addEditorSection);
+
+    document
+      .getElementById("saveChecklistEditsButton")
+      .addEventListener("click", saveChecklistEdits);
+
+    document
+      .getElementById("cancelChecklistEditsButton")
+      .addEventListener("click", cancelChecklistEdits);
+
+    document
+      .getElementById("restorePresetButton")
+      .addEventListener("click", restoreCurrentPreset);
+
+    
+
     customItemText.addEventListener("keydown", event => {
       if (event.key === "Enter") {
         addCustomItem();
@@ -1290,6 +1796,8 @@
 
     populateSelector();
     renderChecklist();
+
+
 
 
     // Mobile navigation
@@ -1366,125 +1874,6 @@
       clearTimeout(window.notesStatusTimer);
       window.notesStatusTimer = setTimeout(() => notesSavedStatus.textContent = "Saved automatically", 1200);
     });
-
-
-    // Checklist editor
-    const editChecklistButton = document.getElementById("editChecklistButton");
-    const checklistEditor = document.getElementById("checklistEditor");
-    const editorSections = document.getElementById("editorSections");
-    const closeEditorButton = document.getElementById("closeEditorButton");
-    const addSectionButton = document.getElementById("addSectionButton");
-    const saveChecklistButton = document.getElementById("saveChecklistButton");
-    let editorDraft = [];
-
-    function openChecklistEditor() {
-      const checklist = getAllChecklists()[currentChecklistId];
-      if (!checklist) return alert("The current checklist could not be found.");
-      editorDraft = JSON.parse(JSON.stringify(checklist.sections || []));
-      renderChecklistEditor();
-      checklistEditor.classList.remove("hidden");
-      checklistEditor.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    function closeChecklistEditor() {
-      checklistEditor.classList.add("hidden");
-      editorDraft = [];
-    }
-
-    function renderChecklistEditor() {
-      editorSections.innerHTML = "";
-      if (!editorDraft.length) {
-        const p = document.createElement("p");
-        p.textContent = "This checklist has no sections. Press Add Section to begin.";
-        editorSections.appendChild(p);
-        return;
-      }
-
-      editorDraft.forEach((section, sectionIndex) => {
-        if (!Array.isArray(section.items)) section.items = [];
-        const box = document.createElement("div");
-        box.className = "editor-section";
-        const top = document.createElement("div");
-        top.className = "editor-item-row";
-        const name = document.createElement("input");
-        name.type = "text";
-        name.className = "editor-section-name";
-        name.value = section.name || "";
-        name.placeholder = "Section name";
-        name.addEventListener("input", () => editorDraft[sectionIndex].name = name.value);
-        const delSection = document.createElement("button");
-        delSection.type = "button";
-        delSection.className = "btn btn-danger";
-        delSection.textContent = "Delete Section";
-        delSection.addEventListener("click", () => {
-          if (!confirm('Delete "' + (section.name || "Untitled Section") + '"?')) return;
-          editorDraft.splice(sectionIndex, 1);
-          renderChecklistEditor();
-        });
-        top.append(name, delSection);
-        box.appendChild(top);
-
-        section.items.forEach((item, itemIndex) => {
-          const row = document.createElement("div");
-          row.className = "editor-item-row";
-          const input = document.createElement("input");
-          input.type = "text";
-          input.value = item;
-          input.placeholder = "Checklist item";
-          input.addEventListener("input", () => editorDraft[sectionIndex].items[itemIndex] = input.value);
-          const remove = document.createElement("button");
-          remove.type = "button";
-          remove.className = "small-btn";
-          remove.textContent = "Remove";
-          remove.addEventListener("click", () => {
-            editorDraft[sectionIndex].items.splice(itemIndex, 1);
-            renderChecklistEditor();
-          });
-          row.append(input, remove);
-          box.appendChild(row);
-        });
-
-        const addItem = document.createElement("button");
-        addItem.type = "button";
-        addItem.className = "btn btn-secondary";
-        addItem.textContent = "+ Add Item";
-        addItem.addEventListener("click", () => {
-          editorDraft[sectionIndex].items.push("");
-          renderChecklistEditor();
-        });
-        box.appendChild(addItem);
-        editorSections.appendChild(box);
-      });
-    }
-
-    function addEditorSection() {
-      editorDraft.push({ name: "New Section", items: [""] });
-      renderChecklistEditor();
-    }
-
-    function saveChecklistEdits() {
-      const sections = editorDraft.map(section => ({
-        name: String(section.name || "").trim(),
-        items: (section.items || []).map(item => String(item).trim()).filter(Boolean)
-      })).filter(section => section.name && section.items.length);
-      if (!sections.length) return alert("Your checklist must have at least one named section and one item.");
-      const current = getAllChecklists()[currentChecklistId];
-      if (!current) return alert("The checklist could not be saved.");
-      const custom = getCustomChecklists();
-      custom[currentChecklistId] = { name: current.name, image: current.image || presetChecklists.pa28.image, sections };
-      saveCustomChecklists(custom);
-      storage.removeItem("checkState_" + currentChecklistId);
-      populateSelector();
-      renderChecklist();
-      closeChecklistEditor();
-      alert("Checklist changes saved.");
-    }
-
-    editChecklistButton.addEventListener("click", openChecklistEditor);
-    closeEditorButton.addEventListener("click", closeChecklistEditor);
-    addSectionButton.addEventListener("click", addEditorSection);
-    saveChecklistButton.addEventListener("click", saveChecklistEdits);
-
 
   </script>
 </body>
