@@ -547,7 +547,38 @@
       background: #fff4e5;
       color: #9a3412;
     }
+    .aircraft-image-editor {
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #f8fafc;
+    }
 
+    .aircraft-image-preview {
+      display: block;
+      width: 100%;
+      max-width: 360px;
+      height: 210px;
+      margin-top: 12px;
+      object-fit: cover;
+      object-position: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #e2e8f0;
+    }
+
+    .aircraft-image-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .image-file-input {
+      display: none;
+    }
+    
     @media (max-width: 720px) {
       .editor-section-header,
       .editor-item-row {
@@ -689,11 +720,50 @@
             Preset checklist edits are saved on this device and can be restored to the original version.
           </p>
 
-          <div style="margin-top: 16px;">
-            <label for="editChecklistName"><strong>Checklist name</strong></label>
-            <input type="text" id="editChecklistName" style="margin-top: 8px;" />
-          </div>
+        <div style="margin-top: 16px;">
+           <label for="editChecklistName"><strong>Checklist name</strong></label>
+  <input type="text" id="editChecklistName" style="margin-top: 8px;" />
+</div>
 
+    <div class="aircraft-image-editor">
+      <strong>Aircraft Picture</strong>
+
+      <p class="editor-note">
+        Choose a picture from your device. The picture will be saved only for this aircraft checklist
+      </p>
+
+      <img
+        id="editAircraftImagePreview"
+        class="aircraft-image-preview"
+        src=""
+        alt="Aircraft Picture Preview"
+        />
+
+      <input
+        type="file"
+        id="editAircraftImageInput"
+        class="image-file-input"
+        accept="image/*"
+        />
+
+      <div class="aircraft-image-buttons">
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="chooseAircraftImageButton"
+          >
+          Choose Picture
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          id="restoreAircraftImageButton"
+          >
+          Restore Default Picture
+          </button>
+      </div>
+    </div>
           <div id="editorSections"></div>
 
           <div class="button-row">
@@ -1158,7 +1228,21 @@
     const editChecklistName = document.getElementById("editChecklistName");
     const editorSections = document.getElementById("editorSections");
     const restorePresetButton = document.getElementById("restorePresetButton");
+    const editAircraftImagePreview = document.getElementById(
+      "editAircraftImagePreview"
+    );
 
+    const editAircraftImageInput = document.getElementById(
+      "editAircraftImageInput"
+    );
+
+    const chooseAircraftImageButton = document.getElementById(
+      "chooseAircraftImageButton"
+    );
+
+    const restoreAircraftImageButton = document.getElementById(
+      "restoreAircraftImageButton"
+    );
     let customDraftItems = [];
     let checklistEditDraft = null;
     let currentChecklistId = storage.getItem("currentChecklistId") || "pa28";
@@ -1501,7 +1585,111 @@
       closeCustomBuilder();
     }
 
+function getDefaultAircraftImage() {
+  if (
+    !currentChecklistId.startsWith("custom_") &&
+    presetChecklists[currentChecklistId]
+  ) {
+    return presetChecklists[currentChecklistId].image;
+  }
 
+  return presetChecklists.pa28.image;
+}
+
+function resizeAircraftImage(file) {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith("image/")) {
+      reject(new Error("Please select an image file."));
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = event => {
+      const image = new Image();
+
+      image.onload = () => {
+        const maximumWidth = 1200;
+        const maximumHeight = 800;
+
+        let width = image.width;
+        let height = image.height;
+
+        const scale = Math.min(
+          maximumWidth / width,
+          maximumHeight / height,
+          1
+        );
+
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          reject(new Error("This browser could not process the picture."));
+          return;
+        }
+
+        context.drawImage(image, 0, 0, width, height);
+
+        const resizedImage = canvas.toDataURL("image/jpeg", 0.82);
+        resolve(resizedImage);
+      };
+
+      image.onerror = () => {
+        reject(new Error("The selected picture could not be opened."));
+      };
+
+      image.src = event.target.result;
+    };
+
+    reader.onerror = () => {
+      reject(new Error("The selected picture could not be read."));
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+async function chooseAircraftImage(event) {
+  const file = event.target.files[0];
+
+  if (!file || !checklistEditDraft) {
+    return;
+  }
+
+  try {
+    chooseAircraftImageButton.disabled = true;
+    chooseAircraftImageButton.textContent = "Loading Picture...";
+
+    const resizedImage = await resizeAircraftImage(file);
+
+    checklistEditDraft.image = resizedImage;
+    editAircraftImagePreview.src = resizedImage;
+  } catch (error) {
+    alert(error.message || "The picture could not be loaded.");
+  } finally {
+    chooseAircraftImageButton.disabled = false;
+    chooseAircraftImageButton.textContent = "Choose Picture";
+
+    // Allows the same picture to be selected again later.
+    editAircraftImageInput.value = "";
+  }
+}
+
+function restoreDefaultAircraftImage() {
+  if (!checklistEditDraft) return;
+
+  const defaultImage = getDefaultAircraftImage();
+
+  checklistEditDraft.image = defaultImage;
+  editAircraftImagePreview.src = defaultImage;
+}
     function openChecklistEditor() {
       const all = getAllChecklists();
       const checklist = all[currentChecklistId];
@@ -1509,6 +1697,11 @@
 
       checklistEditDraft = cloneChecklist(checklist);
       editChecklistName.value = checklistEditDraft.name;
+      checklistEditDraft.image =
+  checklistEditDraft.image || getDefaultAircraftImage();
+
+editAircraftImagePreview.src = checklistEditDraft.image;
+      
       renderChecklistEditor();
       showAppPage("pageEdit");
       setTimeout(() => editChecklistName.focus(), 200);
@@ -1785,7 +1978,19 @@
     document
       .getElementById("restorePresetButton")
       .addEventListener("click", restoreCurrentPreset);
+    chooseAircraftImageButton.addEventListener("click", () => {
+  editAircraftImageInput.click();
+});
 
+editAircraftImageInput.addEventListener(
+  "change",
+  chooseAircraftImage
+);
+
+restoreAircraftImageButton.addEventListener(
+  "click",
+  restoreDefaultAircraftImage
+);
     
 
     customItemText.addEventListener("keydown", event => {
