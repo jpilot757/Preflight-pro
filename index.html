@@ -107,7 +107,13 @@
       border-radius: 12px;
       border: 1px solid var(--border);
     }
+.hero img.picture-clickable {
+  cursor: pointer;
+}
 
+.hero img.picture-clickable:hover {
+  opacity: 0.85;
+}
     .hero h2 {
       margin: 0 0 8px;
       font-size: 1.7rem;
@@ -698,7 +704,47 @@
 
         <ul class="custom-list" id="customItemPreview"></ul>
 
-        <div class="button-row">
+<div class="aircraft-image-editor">
+  <strong>Aircraft Picture</strong>
+
+  <p class="editor-note">
+    Add a picture for this custom aircraft checklist.
+  </p>
+
+  <img
+    id="customAircraftImagePreview"
+    class="aircraft-image-preview"
+    src=""
+    alt="Custom aircraft picture preview"
+  />
+
+  <input
+    type="file"
+    id="customAircraftImageInput"
+    class="image-file-input"
+    accept="image/*"
+  />
+
+  <div class="aircraft-image-buttons">
+    <button
+      type="button"
+      class="btn btn-primary"
+      id="chooseCustomAircraftImageButton"
+    >
+      Add Picture
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-secondary"
+      id="removeCustomAircraftImageButton"
+    >
+      Remove Picture
+    </button>
+  </div>
+</div>
+
+<div class="button-row">
           <button class="btn btn-success" id="saveCustomChecklistButton">
             Save Custom Checklist
           </button>
@@ -853,7 +899,46 @@
         catch (error) { delete memoryStorage[key]; }
       }
     };
-
+const blankAircraftImage =
+  "data: image/svg+xml;charset=UTF-8," +
+  encodeURIComponent(`
+  <svg xmlns="http://www.w3.org/2000/svg" width="800" height="500">
+  <rect width="100%" fill="#e2e8f0"/>
+  <rect
+  x="12"
+  y="12"
+  width="776"
+  height="476"
+  rx="24"
+  fill="none"
+  stroke="#94a3b8"
+  stroke-width="6"
+  stroke-dasharray="18 14"
+  />
+      <text
+        x="50%"
+        y="46%"
+        text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="74"
+        font-weight="bold"
+        fill="#475569"
+      >
+        +
+      </text>
+      <text
+        x="50%"
+        y="62%"
+        text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="44"
+        font-weight="bold"
+        fill="#475569"
+      >
+        Add Picture
+      </text>
+    </svg>
+  `);
     const presetChecklists = {
       "pa28": {
         name: "PA-28 Cherokee Checklist",
@@ -1199,7 +1284,7 @@
       
       "blank": {
         name: "Blank Practice Checklist",
-        image: "https://i.postimg.cc/W4NsCR9X/IMG-9104.jpg",
+        image: blankAircraftImage,
         sections: [
           {
             name: "Practice Section",
@@ -1225,6 +1310,21 @@
     const customSectionName = document.getElementById("customSectionName");
     const customItemText = document.getElementById("customItemText");
     const customItemPreview = document.getElementById("customItemPreview");
+    const customAircraftImagePreview = document.getElementById(
+  "customAircraftImagePreview"
+);
+
+const customAircraftImageInput = document.getElementById(
+  "customAircraftImageInput"
+);
+
+const chooseCustomAircraftImageButton = document.getElementById(
+  "chooseCustomAircraftImageButton"
+);
+
+const removeCustomAircraftImageButton = document.getElementById(
+  "removeCustomAircraftImageButton"
+);
     const editChecklistName = document.getElementById("editChecklistName");
     const editorSections = document.getElementById("editorSections");
     const restorePresetButton = document.getElementById("restorePresetButton");
@@ -1244,6 +1344,7 @@
       "restoreAircraftImageButton"
     );
     let customDraftItems = [];
+    let customDraftImage = blankAircraftImage;
     let checklistEditDraft = null;
     let currentChecklistId = storage.getItem("currentChecklistId") || "pa28";
 
@@ -1313,8 +1414,22 @@
       if (!checklist) return;
 
       checklistTitle.textContent = checklist.name;
-      aircraftImage.src = checklist.image || presetChecklists.pa28.image;
-      checklistContainer.innerHTML = "";
+aircraftImage.src = checklist.image || blankAircraftImage;
+
+const isBlankPicture =
+  !checklist.image ||
+  checklist.image === blankAircraftImage;
+
+aircraftImage.classList.toggle(
+  "picture-clickable",
+  isBlankPicture
+);
+
+aircraftImage.title = isBlankPicture
+  ? "Click to add an aircraft picture"
+  : checklist.name;
+
+checklistContainer.innerHTML = "";
       reviewBox.className = "review";
       reviewBox.innerHTML = "";
 
@@ -1483,19 +1598,27 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function openCustomBuilder() {
-      customBuilder.classList.add("show");
-      showAppPage("pageBuild");
-      setTimeout(() => customChecklistName.focus(), 250);
-    }
+   function openCustomBuilder() {
+  customDraftImage = blankAircraftImage;
+  customAircraftImagePreview.src = customDraftImage;
+
+  customBuilder.classList.add("show");
+  showAppPage("pageBuild");
+
+  setTimeout(() => customChecklistName.focus(), 250);
+}
 
     function closeCustomBuilder() {
       customBuilder.classList.remove("show");
       customChecklistName.value = "";
       customSectionName.value = "";
       customItemText.value = "";
-      customDraftItems = [];
-      renderCustomPreview();
+    customDraftItems = [];
+customDraftImage = blankAircraftImage;
+customAircraftImagePreview.src = blankAircraftImage;
+customAircraftImageInput.value = "";
+
+renderCustomPreview();
       showAppPage("pageChecklist");
     }
 
@@ -1538,7 +1661,32 @@
         customItemPreview.appendChild(li);
       });
     }
+    async function chooseCustomAircraftImage(event) {
+  const file = event.target.files[0];
 
+  if (!file) return;
+
+  try {
+    chooseCustomAircraftImageButton.disabled = true;
+    chooseCustomAircraftImageButton.textContent = "Loading Picture...";
+
+    customDraftImage = await resizeAircraftImage(file);
+
+    customAircraftImagePreview.src = customDraftImage;
+  } catch (error) {
+    alert(error.message || "The picture could not be loaded.");
+  } finally {
+    chooseCustomAircraftImageButton.disabled = false;
+    chooseCustomAircraftImageButton.textContent = "Add Picture";
+    customAircraftImageInput.value = "";
+  }
+}
+
+function removeCustomAircraftImage() {
+  customDraftImage = blankAircraftImage;
+  customAircraftImagePreview.src = blankAircraftImage;
+  customAircraftImageInput.value = "";
+}
     function saveCustomChecklist() {
       const name = customChecklistName.value.trim();
 
@@ -1570,11 +1718,11 @@
       const id = "custom_" + Date.now();
       const customChecklists = getCustomChecklists();
 
-      customChecklists[id] = {
-        name,
-        image: presetChecklists.pa28.image,
-        sections
-      };
+     customChecklists[id] = {
+  name,
+  image: customDraftImage || blankAircraftImage,
+  sections
+};
 
       saveCustomChecklists(customChecklists);
       currentChecklistId = id;
@@ -1954,7 +2102,19 @@ editAircraftImagePreview.src = checklistEditDraft.image;
     document
       .getElementById("saveCustomChecklistButton")
       .addEventListener("click", saveCustomChecklist);
+     chooseCustomAircraftImageButton.addEventListener("click", () => {
+  customAircraftImageInput.click();
+});
 
+customAircraftImageInput.addEventListener(
+  "change",
+  chooseCustomAircraftImage
+);
+
+removeCustomAircraftImageButton.addEventListener(
+  "click",
+  removeCustomAircraftImage
+);
     document
       .getElementById("deleteChecklistButton")
       .addEventListener("click", deleteCurrentChecklist);
@@ -1962,7 +2122,24 @@ editAircraftImagePreview.src = checklistEditDraft.image;
     document
       .getElementById("editChecklistButton")
       .addEventListener("click", openChecklistEditor);
+      aircraftImage.addEventListener("click", () => {
+  const all = getAllChecklists();
+  const checklist = all[currentChecklistId];
 
+  if (!checklist) return;
+
+  const isBlankPicture =
+    !checklist.image ||
+    checklist.image === blankAircraftImage;
+
+  if (!isBlankPicture) return;
+
+  openChecklistEditor();
+
+  setTimeout(() => {
+    editAircraftImageInput.click();
+  }, 250);
+});
     document
       .getElementById("addEditorSectionButton")
       .addEventListener("click", addEditorSection);
@@ -1999,9 +2176,10 @@ restoreAircraftImageButton.addEventListener(
       }
     });
 
-    populateSelector();
-    renderChecklist();
+    customAircraftImagePreview.src = blankAircraftImage;
 
+populateSelector();
+renderChecklist();
 
 
 
