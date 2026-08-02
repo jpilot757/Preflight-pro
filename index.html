@@ -458,7 +458,7 @@
       bottom: 0;
       z-index: 50;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       background: rgba(11, 23, 42, 0.97);
       border-top: 1px solid rgba(255,255,255,0.12);
       padding-bottom: env(safe-area-inset-bottom);
@@ -584,7 +584,146 @@
     .image-file-input {
       display: none;
     }
-    
+    .aircraft-profile-header {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 20px;
+      align-items: center;
+    }
+    .aircraft-profile-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #e2e8f0;
+}
+
+.aircraft-profile-title {
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+}
+
+.aircraft-profile-tail {
+  margin: 0;
+  color: var(--blue);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.profile-section {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.profile-section h3 {
+  margin: 0 0 14px;
+}
+
+.profile-data-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.profile-data-card {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.profile-data-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.profile-data-value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.profile-empty {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.profile-form {
+  display: none;
+}
+
+.profile-form.show {
+  display: block;
+}
+
+.profile-display.hidden {
+  display: none;
+}
+
+.profile-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.profile-field label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: 700;
+}
+
+.profile-field input,
+.profile-field textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  background: white;
+  color: var(--text);
+  font: inherit;
+}
+
+.profile-field textarea {
+  min-height: 130px;
+}
+
+.profile-field-full {
+  grid-column: 1 / -1;
+}
+
+.profile-notes-display {
+  min-height: 80px;
+  padding: 14px;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+@media (max-width: 720px) {
+  .aircraft-profile-header {
+    grid-template-columns: 1fr;
+  }
+
+  .aircraft-profile-image {
+    height: 210px;
+  }
+
+  .profile-data-grid,
+  .profile-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-field-full {
+    grid-column: auto;
+  }
+}
     @media (max-width: 720px) {
       .editor-section-header,
       .editor-item-row {
@@ -828,6 +967,374 @@
     </section>
 
     </div>
+  <div class="app-page" id="pageAircraft">
+  <section class="panel">
+    <div class="panel-body">
+      <h2>Aircraft Profile</h2>
+
+      <p class="editor-note">
+        Aircraft information is saved separately for each checklist.
+        Always verify performance numbers and limitations using the approved
+        POH or AFM for the exact aircraft.
+      </p>
+
+      <div class="profile-display" id="aircraftProfileDisplay">
+        <div class="aircraft-profile-header">
+          <img
+            id="profileAircraftImage"
+            class="aircraft-profile-image"
+            src=""
+            alt="Selected aircraft"
+          />
+
+          <div>
+            <h2
+              class="aircraft-profile-title"
+              id="profileAircraftName"
+            >
+              Aircraft
+            </h2>
+
+            <p
+              class="aircraft-profile-tail"
+              id="profileTailNumber"
+            >
+              Tail number not entered
+            </p>
+
+            <p id="profileAircraftSubtitle"></p>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <h3>Basic Information</h3>
+
+          <div class="profile-data-grid">
+            <div class="profile-data-card">
+              <span class="profile-data-label">Aircraft Type</span>
+              <span class="profile-data-value" id="displayAircraftType"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">Year</span>
+              <span class="profile-data-value" id="displayAircraftYear"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">Tail Number</span>
+              <span class="profile-data-value" id="displayTailNumber"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <h3>Performance</h3>
+
+          <div class="profile-data-grid">
+            <div class="profile-data-card">
+              <span class="profile-data-label">Cruise Speed</span>
+              <span class="profile-data-value" id="displayCruiseSpeed"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">Fuel Burn</span>
+              <span class="profile-data-value" id="displayFuelBurn"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">Fuel Capacity</span>
+              <span class="profile-data-value" id="displayFuelCapacity"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">Oil Capacity</span>
+              <span class="profile-data-value" id="displayOilCapacity"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <h3>Weights</h3>
+
+          <div class="profile-data-grid">
+            <div class="profile-data-card">
+              <span class="profile-data-label">Empty Weight</span>
+              <span class="profile-data-value" id="displayEmptyWeight"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">Useful Load</span>
+              <span class="profile-data-value" id="displayUsefulLoad"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">Maximum Gross Weight</span>
+              <span class="profile-data-value" id="displayMaxGrossWeight"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <h3>V-Speeds</h3>
+
+          <div class="profile-data-grid">
+            <div class="profile-data-card">
+              <span class="profile-data-label">VSO</span>
+              <span class="profile-data-value" id="displayVso"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">VS</span>
+              <span class="profile-data-value" id="displayVs"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">VR</span>
+              <span class="profile-data-value" id="displayVr"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">VX</span>
+              <span class="profile-data-value" id="displayVx"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">VY</span>
+              <span class="profile-data-value" id="displayVy"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">VA</span>
+              <span class="profile-data-value" id="displayVa"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">VFE</span>
+              <span class="profile-data-value" id="displayVfe"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">VNO</span>
+              <span class="profile-data-value" id="displayVno"></span>
+            </div>
+
+            <div class="profile-data-card">
+              <span class="profile-data-label">VNE</span>
+              <span class="profile-data-value" id="displayVne"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <h3>Aircraft Notes</h3>
+          <div
+            class="profile-notes-display"
+            id="displayAircraftNotes"
+          ></div>
+        </div>
+
+        <div class="button-row">
+          <button
+            type="button"
+            class="btn btn-primary"
+            id="editAircraftProfileButton"
+          >
+            Edit Information
+          </button>
+        </div>
+      </div>
+
+      <div class="profile-form" id="aircraftProfileForm">
+        <div class="profile-form-grid">
+          <div class="profile-field">
+            <label for="aircraftProfileName">Aircraft Name</label>
+            <input
+              type="text"
+              id="aircraftProfileName"
+              placeholder="Example: Jake's Cherokee"
+            />
+          </div>
+
+          <div class="profile-field">
+            <label for="aircraftTailNumber">Tail Number</label>
+            <input
+              type="text"
+              id="aircraftTailNumber"
+              placeholder="Example: N123AB"
+            />
+          </div>
+
+          <div class="profile-field">
+            <label for="aircraftType">Aircraft Type</label>
+            <input
+              type="text"
+              id="aircraftType"
+              placeholder="Example: PA-28-180"
+            />
+          </div>
+
+          <div class="profile-field">
+            <label for="aircraftYear">Year</label>
+            <input
+              type="text"
+              id="aircraftYear"
+              placeholder="Example: 1974"
+            />
+          </div>
+
+          <div class="profile-field">
+            <label for="aircraftCruiseSpeed">Cruise Speed</label>
+            <input
+              type="text"
+              id="aircraftCruiseSpeed"
+              placeholder="Example: 115 KTAS"
+            />
+          </div>
+
+          <div class="profile-field">
+            <label for="aircraftFuelBurn">Fuel Burn</label>
+            <input
+              type="text"
+              id="aircraftFuelBurn"
+              placeholder="Example: 9 GPH"
+            />
+          </div>
+
+          <div class="profile-field">
+            <label for="aircraftFuelCapacity">Fuel Capacity</label>
+            <input
+              type="text"
+              id="aircraftFuelCapacity"
+              placeholder="Example: 50 gallons"
+            />
+          </div>
+
+          <div class="profile-field">
+            <label for="aircraftOilCapacity">Oil Capacity</label>
+            <input
+              type="text"
+              id="aircraftOilCapacity"
+              placeholder="Example: 8 quarts"
+            />
+          </div>
+
+          <div class="profile-field">
+            <label for="aircraftEmptyWeight">Empty Weight</label>
+            <input
+              type="text"
+              id="aircraftEmptyWeight"
+              placeholder="Example: 1,450 lb"
+            />
+          </div>
+
+          <div class="profile-field">
+            <label for="aircraftUsefulLoad">Useful Load</label>
+            <input
+              type="text"
+              id="aircraftUsefulLoad"
+              placeholder="Example: 950 lb"
+            />
+          </div>
+
+          <div class="profile-field">
+            <label for="aircraftMaxGrossWeight">Maximum Gross Weight</label>
+            <input
+              type="text"
+              id="aircraftMaxGrossWeight"
+              placeholder="Example: 2,400 lb"
+            />
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <h3>V-Speeds</h3>
+
+          <div class="profile-form-grid">
+            <div class="profile-field">
+              <label for="aircraftVso">VSO</label>
+              <input type="text" id="aircraftVso" placeholder="KIAS" />
+            </div>
+
+            <div class="profile-field">
+              <label for="aircraftVs">VS</label>
+              <input type="text" id="aircraftVs" placeholder="KIAS" />
+            </div>
+
+            <div class="profile-field">
+              <label for="aircraftVr">VR</label>
+              <input type="text" id="aircraftVr" placeholder="KIAS" />
+            </div>
+
+            <div class="profile-field">
+              <label for="aircraftVx">VX</label>
+              <input type="text" id="aircraftVx" placeholder="KIAS" />
+            </div>
+
+            <div class="profile-field">
+              <label for="aircraftVy">VY</label>
+              <input type="text" id="aircraftVy" placeholder="KIAS" />
+            </div>
+
+            <div class="profile-field">
+              <label for="aircraftVa">VA</label>
+              <input type="text" id="aircraftVa" placeholder="KIAS" />
+            </div>
+
+            <div class="profile-field">
+              <label for="aircraftVfe">VFE</label>
+              <input type="text" id="aircraftVfe" placeholder="KIAS" />
+            </div>
+
+            <div class="profile-field">
+              <label for="aircraftVno">VNO</label>
+              <input type="text" id="aircraftVno" placeholder="KIAS" />
+            </div>
+
+            <div class="profile-field">
+              <label for="aircraftVne">VNE</label>
+              <input type="text" id="aircraftVne" placeholder="KIAS" />
+            </div>
+
+            <div class="profile-field profile-field-full">
+              <label for="aircraftProfileNotes">Aircraft Notes</label>
+              <textarea
+                id="aircraftProfileNotes"
+                placeholder="Avionics, equipment, maintenance reminders, squawks, or other aircraft information..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button
+            type="button"
+            class="btn btn-success"
+            id="saveAircraftProfileButton"
+          >
+            Save Information
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="cancelAircraftProfileButton"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-danger"
+            id="clearAircraftProfileButton"
+          >
+            Clear Information
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
 
     <div class="app-page" id="pageTools">
       <section class="panel">
@@ -876,10 +1383,25 @@
 
 
   <nav class="bottom-nav" aria-label="App navigation">
-    <button class="active" data-page="pageChecklist"><span>🏠</span>Home</button>
-    <button data-page="pageChecklistBody"><span>☑️</span>Checklist</button>
-    <button data-page="pageTools"><span>🧰</span>Tools</button>
-    <button data-page="pageNotes"><span>📝</span>Notes</button>
+    <button class="active" data-page="pageChecklist">
+      <span>🏠</span>Home
+    </button>
+
+    <button data-page="pageChecklistBody">
+      <span>☑️</span>CHecklist
+    </button>
+
+    <button data-page="pageAircraft">
+      <span>✈️</span>Aircraft
+    </button>
+
+    <button data-page="pageTools">
+      <span>🧰</span>Tools
+    </button>
+
+    <button data-page="pageNotes">
+      <span>📝</span>Notes
+    </button>
   </nav>
 
   <script>
@@ -1343,6 +1865,76 @@ const removeCustomAircraftImageButton = document.getElementById(
     const restoreAircraftImageButton = document.getElementById(
       "restoreAircraftImageButton"
     );
+    const aircraftProfileDisplay = document.getElementById(
+  "aircraftProfileDisplay"
+);
+
+const aircraftProfileForm = document.getElementById(
+  "aircraftProfileForm"
+);
+
+const profileAircraftImage = document.getElementById(
+  "profileAircraftImage"
+);
+
+const profileAircraftName = document.getElementById(
+  "profileAircraftName"
+);
+
+const profileTailNumber = document.getElementById(
+  "profileTailNumber"
+);
+
+const profileAircraftSubtitle = document.getElementById(
+  "profileAircraftSubtitle"
+);
+
+const aircraftProfileFields = {
+  name: document.getElementById("aircraftProfileName"),
+  tailNumber: document.getElementById("aircraftTailNumber"),
+  type: document.getElementById("aircraftType"),
+  year: document.getElementById("aircraftYear"),
+  cruiseSpeed: document.getElementById("aircraftCruiseSpeed"),
+  fuelBurn: document.getElementById("aircraftFuelBurn"),
+  fuelCapacity: document.getElementById("aircraftFuelCapacity"),
+  oilCapacity: document.getElementById("aircraftOilCapacity"),
+  emptyWeight: document.getElementById("aircraftEmptyWeight"),
+  usefulLoad: document.getElementById("aircraftUsefulLoad"),
+  maxGrossWeight: document.getElementById("aircraftMaxGrossWeight"),
+  vso: document.getElementById("aircraftVso"),
+  vs: document.getElementById("aircraftVs"),
+  vr: document.getElementById("aircraftVr"),
+  vx: document.getElementById("aircraftVx"),
+  vy: document.getElementById("aircraftVy"),
+  va: document.getElementById("aircraftVa"),
+  vfe: document.getElementById("aircraftVfe"),
+  vno: document.getElementById("aircraftVno"),
+  vne: document.getElementById("aircraftVne"),
+  notes: document.getElementById("aircraftProfileNotes")
+};
+
+const aircraftProfileDisplayFields = {
+  type: document.getElementById("displayAircraftType"),
+  year: document.getElementById("displayAircraftYear"),
+  tailNumber: document.getElementById("displayTailNumber"),
+  cruiseSpeed: document.getElementById("displayCruiseSpeed"),
+  fuelBurn: document.getElementById("displayFuelBurn"),
+  fuelCapacity: document.getElementById("displayFuelCapacity"),
+  oilCapacity: document.getElementById("displayOilCapacity"),
+  emptyWeight: document.getElementById("displayEmptyWeight"),
+  usefulLoad: document.getElementById("displayUsefulLoad"),
+  maxGrossWeight: document.getElementById("displayMaxGrossWeight"),
+  vso: document.getElementById("displayVso"),
+  vs: document.getElementById("displayVs"),
+  vr: document.getElementById("displayVr"),
+  vx: document.getElementById("displayVx"),
+  vy: document.getElementById("displayVy"),
+  va: document.getElementById("displayVa"),
+  vfe: document.getElementById("displayVfe"),
+  vno: document.getElementById("displayVno"),
+  vne: document.getElementById("displayVne"),
+  notes: document.getElementById("displayAircraftNotes")
+};
     let customDraftItems = [];
     let customDraftImage = blankAircraftImage;
     let checklistEditDraft = null;
@@ -1587,12 +2179,257 @@ checklistContainer.innerHTML = "";
       div.textContent = text;
       return div.innerHTML;
     }
+function getAircraftProfile() {
+  try {
+    return JSON.parse(
+      storage.getItem("aircraftProfile_" + currentChecklistId) || "{}"
+    );
+  } catch (error) {
+    return {};
+  }
+}
 
+function saveAircraftProfileData(profile) {
+  storage.setItem(
+    "aircraftProfile_" + currentChecklistId,
+    JSON.stringify(profile)
+  );
+}
+
+function getProfileValue(value, unit) {
+  const cleanedValue = String(value || "").trim();
+
+  if (!cleanedValue) {
+    return "";
+  }
+
+  if (!unit) {
+    return cleanedValue;
+  }
+
+  return cleanedValue.toUpperCase().includes(unit.toUpperCase())
+    ? cleanedValue
+    : cleanedValue + " " + unit;
+}
+
+function setProfileDisplayValue(element, value, unit = "") {
+  const finalValue = getProfileValue(value, unit);
+
+  element.textContent = finalValue || "Not entered";
+  element.classList.toggle("profile-empty", !finalValue);
+}
+
+function renderAircraftProfile() {
+  const all = getAllChecklists();
+  const checklist = all[currentChecklistId];
+
+  if (!checklist) return;
+
+  const profile = getAircraftProfile();
+
+  profileAircraftImage.src =
+    checklist.image || blankAircraftImage;
+
+  profileAircraftName.textContent =
+    profile.name || checklist.name || "Aircraft";
+
+  profileTailNumber.textContent =
+    profile.tailNumber || "Tail number not entered";
+
+  const subtitleParts = [
+    profile.year,
+    profile.type
+  ].filter(Boolean);
+
+  profileAircraftSubtitle.textContent =
+    subtitleParts.length > 0
+      ? subtitleParts.join(" • ")
+      : "Aircraft information has not been entered.";
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.type,
+    profile.type
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.year,
+    profile.year
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.tailNumber,
+    profile.tailNumber
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.cruiseSpeed,
+    profile.cruiseSpeed
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.fuelBurn,
+    profile.fuelBurn
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.fuelCapacity,
+    profile.fuelCapacity
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.oilCapacity,
+    profile.oilCapacity
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.emptyWeight,
+    profile.emptyWeight
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.usefulLoad,
+    profile.usefulLoad
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.maxGrossWeight,
+    profile.maxGrossWeight
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.vso,
+    profile.vso,
+    "KIAS"
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.vs,
+    profile.vs,
+    "KIAS"
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.vr,
+    profile.vr,
+    "KIAS"
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.vx,
+    profile.vx,
+    "KIAS"
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.vy,
+    profile.vy,
+    "KIAS"
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.va,
+    profile.va,
+    "KIAS"
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.vfe,
+    profile.vfe,
+    "KIAS"
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.vno,
+    profile.vno,
+    "KIAS"
+  );
+
+  setProfileDisplayValue(
+    aircraftProfileDisplayFields.vne,
+    profile.vne,
+    "KIAS"
+  );
+
+  aircraftProfileDisplayFields.notes.textContent =
+    profile.notes || "No aircraft notes entered.";
+
+  aircraftProfileDisplayFields.notes.classList.toggle(
+    "profile-empty",
+    !profile.notes
+  );
+}
+
+function openAircraftProfileEditor() {
+  const all = getAllChecklists();
+  const checklist = all[currentChecklistId];
+
+  if (!checklist) return;
+
+  const profile = getAircraftProfile();
+
+  Object.entries(aircraftProfileFields).forEach(([key, field]) => {
+    if (key === "name") {
+      field.value = profile.name || checklist.name || "";
+    } else {
+      field.value = profile[key] || "";
+    }
+  });
+
+  aircraftProfileDisplay.classList.add("hidden");
+  aircraftProfileForm.classList.add("show");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function closeAircraftProfileEditor() {
+  aircraftProfileForm.classList.remove("show");
+  aircraftProfileDisplay.classList.remove("hidden");
+}
+
+function saveAircraftProfile() {
+  const profile = {};
+
+  Object.entries(aircraftProfileFields).forEach(([key, field]) => {
+    profile[key] = field.value.trim();
+  });
+
+  saveAircraftProfileData(profile);
+  renderAircraftProfile();
+  closeAircraftProfileEditor();
+
+  alert("Aircraft information saved.");
+}
+
+function clearAircraftProfile() {
+  const confirmed = confirm(
+    "Clear all saved information for this aircraft?"
+  );
+
+  if (!confirmed) return;
+
+  storage.removeItem(
+    "aircraftProfile_" + currentChecklistId
+  );
+
+  Object.values(aircraftProfileFields).forEach(field => {
+    field.value = "";
+  });
+
+  renderAircraftProfile();
+  closeAircraftProfileEditor();
+}
     function showAppPage(pageId) {
       document.querySelectorAll(".app-page").forEach(page => page.classList.remove("active"));
       document.querySelectorAll(".bottom-nav button").forEach(btn => btn.classList.remove("active"));
       const page = document.getElementById(pageId);
       if (page) page.classList.add("active");
+      if (pageId === "pageAircraft") {
+  renderAircraftProfile();
+  closeAircraftProfileEditor();
+}
       const navButton = document.querySelector(`.bottom-nav button[data-page="${pageId}"]`);
       if (navButton) navButton.classList.add("active");
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2071,9 +2908,15 @@ editAircraftImagePreview.src = checklistEditDraft.image;
 
     checklistSelector.addEventListener("change", event => {
       currentChecklistId = event.target.value;
-      storage.setItem("currentChecklistId", currentChecklistId);
-      renderChecklist();
-    });
+
+      storage.setItem(
+    "currentChecklistId",
+    currentChecklistId
+  );
+
+  renderChecklist();
+  renderAircraftProfile();
+});
 
     document
       .getElementById("finishButton")
@@ -2180,9 +3023,23 @@ restoreAircraftImageButton.addEventListener(
 
 populateSelector();
 renderChecklist();
+renderAircraftProfile();
 
+document
+  .getElementById("editAircraftProfileButton")
+  .addEventListener("click", openAircraftProfileEditor);
 
+document
+  .getElementById("saveAircraftProfileButton")
+  .addEventListener("click", saveAircraftProfile);
 
+document
+  .getElementById("cancelAircraftProfileButton")
+  .addEventListener("click", closeAircraftProfileEditor);
+
+document
+  .getElementById("clearAircraftProfileButton")
+  .addEventListener("click", clearAircraftProfile);
     // Mobile navigation
     document.querySelectorAll(".bottom-nav button").forEach(button => {
       button.addEventListener("click", () => {
